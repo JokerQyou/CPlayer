@@ -1,0 +1,41 @@
+body{
+	margin: 0;
+	padding: 0;
+	overflow: hidden;
+	background-color: #000000;
+}
+
+.controlBar{
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	min-height: 80px;
+}
+
+.cBtn{
+	min-width: 40px;
+	min-height: 40px;
+	border-radius: 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+#cPlay{
+	background-image: ;
+}
+
+#cStop{
+	background-image: ;
+}
+
+.progressbar{
+	width: 100%;
+	height: 6px;
+	background-color: rgba(66, 66, 66, .5);
+}
+
+.progress{
+	height: 6px;
+	background-color: rgba(20, 155, 223, .7);
+	width: 0%;
+}
