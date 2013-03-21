@@ -42,6 +42,9 @@ function CPlayer(){
 	var cProgress = document.createElement('div');
 	cProgress.className = 'progress';
 	cProgressBar.appendChild(cProgress);
+	/** Time tag **/
+	var cTimeTag = document.createElement('span');
+	cTimeTag.className = 'cLeft';
 	/** Play & pause button **/
 	var cPlay = document.createElement('button');
 	cPlay.className = 'cBtn';
@@ -59,6 +62,7 @@ function CPlayer(){
 	cFullscreen.className = 'csmallBtn';
 	cFullscreen.id = 'cFullscreen';
 	controlBar.appendChild(cProgressBar);
+	controlBar.appendChild(cTimeTag);
 	controlBar.appendChild(cPlay);
 	controlBar.appendChild(cStop);
 	controlBar.appendChild(cFile);
@@ -176,10 +180,30 @@ function CPlayer(){
 	});
 
 	/**
-	 * Progress bar update
+	 * Generate formatted time string for time tag
+	 */
+	var formatTime = function(currentTime, duration){
+		var hour = parseInt(currentTime / 3600);
+		var min = parseInt((currentTime - hour*3600) / 60);
+		var sec = parseInt((currentTime - hour*3600 - min*60) % 60);
+		var hourT = parseInt(duration / 3600);
+		var minT = parseInt((duration - hour*3600) / 60);
+		var secT = parseInt((duration - hour*3600 - min*60) % 60);
+		hour = (hour<=9)?('0'+hour):(hour);
+		min = (min<=9)?('0'+min):(min);
+		sec = (sec<=9)?('0'+sec):(sec);
+		hourT = (hourT<=9)?('0'+hourT):(hourT);
+		minT = (minT<=9)?('0'+minT):(minT);
+		secT = (secT<=9)?('0'+secT):(secT);
+		return hour+':'+min+':'+sec+' / '+hourT+':'+minT+':'+secT;
+	}
+
+	/**
+	 * Progress bar update, time tag update
 	 */
 	video.addEventListener('timeupdate', function(){
 		var percentage = (this.currentTime * 100 / this.duration);
+		cTimeTag.innerHTML = formatTime(this.currentTime, this.duration);
 		cProgress.style.width = percentage + '%';
 	});
 
@@ -232,23 +256,54 @@ function CPlayer(){
 		}
 	}
 
+	var requestFullscreen = function(elem){
+		if(document.body.requestFullscreen){
+			return elem.requestFullscreen();
+		}else if(document.body.webkitRequestFullScreen){
+			return elem.webkitRequestFullScreen();
+		}else if(document.body.mozRequestFullScreen){
+			return elem.mozRequestFullScreen();
+		}
+	}
+
+	var cancelFullscreen = function(elem){
+		if(document.exitFullscreen){
+			return elem.exitFullscreen();
+		}else if(document.webkitCancelFullScreen){
+			return elem.webkitCancelFullScreen();
+		}else if(document.mozCancelFullScreen){
+			return elem.mozCancelFullScreen();
+		}
+	}
+
 	var fullscreen = false;
 	/**
 	 * Click button to enter / quit scaled fullscreen
 	 */
 	cFullscreen.addEventListener('click', function(){
 		if(!fullscreen){
+			requestFullscreen(document.body);
 			_this.videoRect = calcFullVideoRect(video);
 			fullscreen = true;
 			spf = 1000 / 30;
 			console.log('Entered fullscreen, FPS decreased to '+(1000/spf));
 		}else{
+			cancelFullscreen(document);
 			context.clearRect(0, 0, canvas.width, canvas.height);
 			_this.videoRect = calcVideoRect(video);
 			fullscreen = false;
 			spf = 1000 / 60;
 			console.log('Quited fullscreen, FPS increased to '+(1000/spf));
 		}
+	});
+
+	/**
+	 * Canvas auto resize on window resize
+	 */
+	window.addEventListener('resize', function(){
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		_this.videoRect = calcVideoRect(video);
 	});
 
 	// /**
