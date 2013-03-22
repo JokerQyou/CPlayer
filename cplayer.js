@@ -17,6 +17,7 @@ function CPlayer(){
 	var canvas = document.createElement('canvas');
 	var context = canvas.getContext('2d');
 	var spf = 1000 / 60;
+	var intervalId;
 
 	/**
 	 * Canvas set up
@@ -27,8 +28,43 @@ function CPlayer(){
 	canvas.style.cursor = 'none';
 	document.body.appendChild(canvas);
 
+	/**
+	 * Chrome download link
+	 */
+	var chromeDlk = "<a href=\"https://google.com/chrome/\" target=\"_blank\" title=\"Fastest modern browser ever\"><img src=\"get-chrome.png\" alt=\"Chrome logo\"></a>";
+	canvas.innerHTML = chromeDlk;
+
+	/**
+	 * Draw logo in the center
+	 */
+	var logo = new Image();
+	logo.src = "cplayer.png";
+
+	var drawLogo = function(){
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		var x = (canvas.width - logo.width) / 2;
+		var y = (canvas.height - logo.height) / 2;
+		context.drawImage(logo, x, y);
+	}
+	logo.addEventListener('load', function(){
+		drawLogo();
+	});
+
 	console.log('Canvas init succeeded');
 	console.log('Device resolution is '+window.innerWidth+' * '+window.innerHeight);
+
+	/**
+	 * Top bar set up
+	 */
+	var topBar = document.createElement('div');
+	topBar.className = 'topBar';
+	/** File name tag **/
+	var filenameTag = document.createElement('span');
+	filenameTag.className = 'cLeft';
+	filenameTag.id = 'filenameTag';
+	filenameTag.innerHTML = '未在播放文件';
+	topBar.appendChild(filenameTag);
+	document.body.appendChild(topBar);
 
 	/**
 	 * Control bar set up
@@ -57,16 +93,16 @@ function CPlayer(){
 	var cFile = document.createElement('button');
 	cFile.className = 'csmallBtn';
 	cFile.id = 'cFile';
-	/** Fullscreen button **/
-	var cFullscreen = document.createElement('button');
-	cFullscreen.className = 'csmallBtn';
-	cFullscreen.id = 'cFullscreen';
+	/** Help button **/
+	var cHelp = document.createElement('button');
+	cHelp.className = 'csmallBtn';
+	cHelp.id = 'cHelp';
 	controlBar.appendChild(cProgressBar);
 	controlBar.appendChild(cTimeTag);
 	controlBar.appendChild(cPlay);
 	controlBar.appendChild(cStop);
 	controlBar.appendChild(cFile);
-	controlBar.appendChild(cFullscreen);
+	controlBar.appendChild(cHelp);
 	document.body.appendChild(controlBar);
 
 	console.log('Control bar init succeeded');
@@ -93,6 +129,8 @@ function CPlayer(){
 		 */
 		if(RegExp('video\/').test(this.files[0].type)){
 			if(_this.videoFile){
+				clearInterval(_this.intervalId);
+				console.log('Video sync stopped');
 				revokeBlobURL(_this.videoFile);
 				context.clearRect(0, 0, canvas.width, canvas.height);
 				console.log('Continuous playing, Blob URL revoked, rect cleared');
@@ -171,12 +209,23 @@ function CPlayer(){
 	video.addEventListener('loadedmetadata', function(){
 		_this.videoRect = calcVideoRect(this);
 		document.title = _this.videoFile.name + ' - CPlayer';
+		context.clearRect(0, 0, canvas.width, canvas.height);
+		filenameTag.innerHTML = _this.videoFile.name;
+	});
+
+	/**
+	 * Hide control bar when video starts to play
+	 */
+	video.addEventListener('play', function(){
+		controlBar.className = "controlBar fade";
+		topBar.className = 'topBar fade';
 		/**
 		 * Draw video to canvas
 		 */
-		setInterval(function(){
+		_this.intervalId = setInterval(function(){
 			context.drawImage(video, _this.videoRect.cx, _this.videoRect.cy, _this.videoRect.vw, _this.videoRect.vh);
 		}, spf);
+		cPlay.className = 'cBtn pause';
 	});
 
 	/**
@@ -208,6 +257,27 @@ function CPlayer(){
 	});
 
 	/**
+	 * Clear interval when video pauses
+	 */
+	video.addEventListener('pause', function(){
+		clearInterval(_this.intervalId);
+		cPlay.className = 'cBtn';
+		console.log('Video sync stopped due to video pause event');
+	});
+
+	/**
+	 * Draw logo and show control bar when video ends
+	 */
+	video.addEventListener('ended', function(){
+		clearInterval(_this.intervalId);
+		console.log('Video sync stopped');
+		drawLogo();
+		controlBar.className = 'controlBar';
+		topBar.className = 'topBar';
+		cPlay.className = 'cBtn';
+	});
+
+	/**
 	 * Progress bar clickable for jumping to specified time point
 	 */
 	cProgressBar.addEventListener('click', function(e){
@@ -230,6 +300,25 @@ function CPlayer(){
 			}
 		}else{
 			fileInput.click();
+		}
+	});
+
+	cPlay.addEventListener('click', function(){
+		if(!!video.src){
+			if(!video.paused){
+				video.pause();
+			}else{
+				video.play();
+			}
+		}else{
+			fileInput.click();
+		}
+	});
+
+	cStop.addEventListener('click', function(){
+		if(!!video.src && !video.paused){
+			video.currentTime = 0;
+			video.pause();
 		}
 	});
 
@@ -256,44 +345,20 @@ function CPlayer(){
 		}
 	}
 
-	var requestFullscreen = function(elem){
-		if(document.body.requestFullscreen){
-			return elem.requestFullscreen();
-		}else if(document.body.webkitRequestFullScreen){
-			return elem.webkitRequestFullScreen();
-		}else if(document.body.mozRequestFullScreen){
-			return elem.mozRequestFullScreen();
-		}
-	}
-
-	var cancelFullscreen = function(elem){
-		if(document.exitFullscreen){
-			return elem.exitFullscreen();
-		}else if(document.webkitCancelFullScreen){
-			return elem.webkitCancelFullScreen();
-		}else if(document.mozCancelFullScreen){
-			return elem.mozCancelFullScreen();
-		}
-	}
-
-	var fullscreen = false;
 	/**
-	 * Click button to enter / quit scaled fullscreen
+	 * Click button to active help
 	 */
-	cFullscreen.addEventListener('click', function(){
-		if(!fullscreen){
-			requestFullscreen(document.body);
-			_this.videoRect = calcFullVideoRect(video);
-			fullscreen = true;
-			spf = 1000 / 30;
-			console.log('Entered fullscreen, FPS decreased to '+(1000/spf));
+	cHelp.addEventListener('click', function(){
+		if(!document.querySelector('.helpLayer')){
+			var helpLayer = document.createElement('div');
+			helpLayer.className = 'helpLayer';
+			var helpText = '<h2>CPlayer</h2><p>一个使用 HTML5 canvas 和 video 来播放本地视频文件的播放器，实验性质，支持的编码格式依不同平台不同浏览器而有差异。</p><p>项目地址：<a href="//gitcafe.com/JokerQyou/CPlayer" target="_blank">http://gitcafe.com/JokerQyou/CPlayer</a></p><p>作者博客：<a href="//blog.mynook.info/" target="_blank">http://blog.mynook.info/</a></p>'
+			helpLayer.innerHTML = helpText;
+			document.body.appendChild(helpLayer);
+			helpLayer.style.left = (window.innerWidth - helpLayer.offsetWidth) / 2 + 'px';
+			helpLayer.style.top = (window.innerHeight - helpLayer.offsetHeight) / 2 + 'px';
 		}else{
-			cancelFullscreen(document);
-			context.clearRect(0, 0, canvas.width, canvas.height);
-			_this.videoRect = calcVideoRect(video);
-			fullscreen = false;
-			spf = 1000 / 60;
-			console.log('Quited fullscreen, FPS increased to '+(1000/spf));
+			document.body.removeChild(document.querySelector('.helpLayer'));
 		}
 	});
 
@@ -304,6 +369,10 @@ function CPlayer(){
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 		_this.videoRect = calcVideoRect(video);
+		console.log('window resized');
+		if(!video.src || !!video.ended){
+			drawLogo();
+		}
 	});
 
 	// /**
@@ -326,7 +395,7 @@ function CPlayer(){
 	// 	}
 	// });
 
-	console.log('Video init succeeded');
+	console.log('CPlayer is now ready');
 
 	this.videoFile = null;
 }

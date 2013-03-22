@@ -3,6 +3,25 @@ body{
 	padding: 0;
 	overflow: hidden;
 	background-color: #000000;
+	text-align: center;
+}
+
+.topBar{
+	position: absolute;
+	top: 0;
+	width: 100%;
+	background-color: rgba(0, 0, 0, .9);
+	border-bottom: 1px solid rgba(20, 150, 223, .9);
+	min-height: 20px;
+	height: 20px;
+	padding: 2px 0;
+}
+
+#filenameTag{
+	color: #dddddd;;
+	font-size: 16px;
+	display: inline-block;
+	vertical-align: middle;
 }
 
 .controlBar{
@@ -12,34 +31,131 @@ body{
 	min-height: 80px;
 }
 
+.fade{
+	opacity: 0;
+	-webkit-transition: opacity .45s ease-in-out;
+	   -moz-transition: opacity .45s ease-in-out;
+	    -ms-transition: opacity .45s ease-in-out;
+	     -o-transition: opacity .45s ease-in-out;
+	        transition: opacity .45s ease-in-out;
+}
+
+.fade:hover{
+	opacity: .9;
+	-webkit-transition: opacity .45s ease-in-out;
+	   -moz-transition: opacity .45s ease-in-out;
+	    -ms-transition: opacity .45s ease-in-out;
+	     -o-transition: opacity .45s ease-in-out;
+	        transition: opacity .45s ease-in-out;
+}
+
 .cBtn{
-	min-width: 40px;
-	min-height: 40px;
+	width: 40px;
+	height: 40px;
 	border-radius: 100%;
 	background-position: center;
 	background-repeat: no-repeat;
+	background-color: transparent;
+	background-size: 115%;
+	border: none;
+	margin: 10px;
 }
 
 #cPlay{
-	background-image: ;
+	background-image: url(play40.png);
+}
+
+#cPlay.pause{
+	background-image: url(pause40.png);
 }
 
 #cStop{
-	background-image: ;
+	background-image: url(stop40.png);
 }
 
 .progressbar{
 	width: 100%;
 	height: 6px;
 	background-color: rgba(66, 66, 66, .5);
+	margin: 4px 0;
 }
 
 .progress{
 	height: 6px;
 	background-color: rgba(20, 155, 223, .7);
 	width: 0%;
+	box-shadow: 0 0 10px rgba(100, 230, 255, .95);
 }
 
 .cLeft{
 	color: #ffffff;
+	float: left;
+	margin-left: 5px;
+}
+
+.csmallBtn{
+	float: right;
+	margin-right: 8px;
+	background-repeat: no-repeat;
+	background-size: cover;
+	background-position: center;
+	background-color: transparent;
+	border: none;
+	width: 24px;
+	height: 24px;
+}
+
+.cBtn, .csmallBtn{
+	cursor: pointer;
+}
+
+.cBtn, .csmallBtn, .cBtn:hover, .csmallBtn:hover, .cBtn:active, .csmallBtn:active{
+	-webkit-transition: all .25s ease-in-out;
+	   -moz-transition: all .25s ease-in-out;
+	    -ms-transition: all .25s ease-in-out;
+	     -o-transition: all .25s ease-in-out;
+	        transition: all .25s ease-in-out;
+}
+
+.cBtn:hover{
+	box-shadow: 0 0 30px rgba(0, 153, 255, .85);
+	background-color: rgba(0, 153, 255, .5);
+}
+
+.cBtn:active{
+	box-shadow: 0 0 50px rgba(0, 153, 255, 1);
+	background-color: rgba(0, 153, 255, .5);
+}
+
+#cFile{
+	background-image: url(openfile24.png);
+}
+
+#cFile:hover{
+	background-image: url(openfile24h.png);
+}
+
+#cHelp{
+	background-image: url(help24.png);
+}
+
+#cHelp:hover{
+	background-image: url(help24h.png);
+}
+
+.helpLayer{
+	position: absolute;
+	border: 8px solid rgba(160, 160, 160, .65);
+	border-radius: 10px;
+	background-color: rgba(0, 0, 0, .8);
+	padding: 20px;
+	color: #dddddd;
+	top: 0;
+	width: 500px;
+	text-align: left;
+	z-index: 99;
+}
+
+.helpLayer a{
+	color: #9d9d9d;
 }
