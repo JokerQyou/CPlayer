@@ -10,7 +10,7 @@ body{
 	position: absolute;
 	top: 0;
 	width: 100%;
-	background-color: rgba(0, 0, 0, .9);
+	background-color: rgba(0, 0, 0, .85);
 	border-bottom: 1px solid rgba(20, 150, 223, .9);
 	min-height: 20px;
 	height: 20px;
@@ -29,6 +29,8 @@ body{
 	bottom: 0;
 	width: 100%;
 	min-height: 80px;
+	background-color: rgba(0, 0, 0, .85);
+	box-shadow: 0 0 30px rgba(0,0,0,.8);
 }
 
 .fade{
@@ -158,4 +160,39 @@ body{
 
 .helpLayer a{
 	color: #9d9d9d;
+}
+
+.timeTip{
+	position: absolute;
+	z-index: 1030;
+	display: block;
+	padding: 5px;
+	font-size: 11px;
+	visibility: visible;
+}
+
+.tipArrow{
+	width: 0;
+	height: 0;
+	border-color: transparent;
+	border-style: solid;
+	bottom: 0;
+	left: 50%;
+	margin-left: -5px;
+	border-top-color: rgba(8, 161, 247, 0.78);
+	border-width: 5px 5px 0;
+	position: absolute;
+}
+
+.tipContent{
+	max-width: 100px;
+	padding: 3px 8px;
+	color: #ffffff;
+	text-align: center;
+	text-decoration: none;
+	background-color: rgba(8, 161, 247, 0.78);
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+	box-shadow: 0 0 10px rgba(8, 161, 247, 1);
 }

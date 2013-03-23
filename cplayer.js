@@ -231,7 +231,7 @@ function CPlayer(){
 	/**
 	 * Generate formatted time string for time tag
 	 */
-	var formatTime = function(currentTime, duration){
+	var formatTimeTag = function(currentTime, duration){
 		var hour = parseInt(currentTime / 3600);
 		var min = parseInt((currentTime - hour*3600) / 60);
 		var sec = parseInt((currentTime - hour*3600 - min*60) % 60);
@@ -252,7 +252,7 @@ function CPlayer(){
 	 */
 	video.addEventListener('timeupdate', function(){
 		var percentage = (this.currentTime * 100 / this.duration);
-		cTimeTag.innerHTML = formatTime(this.currentTime, this.duration);
+		cTimeTag.innerHTML = formatTimeTag(this.currentTime, this.duration);
 		cProgress.style.width = percentage + '%';
 	});
 
@@ -262,6 +262,8 @@ function CPlayer(){
 	video.addEventListener('pause', function(){
 		clearInterval(_this.intervalId);
 		cPlay.className = 'cBtn';
+		topBar.className = 'topBar';
+		controlBar.className = 'controlBar';
 		console.log('Video sync stopped due to video pause event');
 	});
 
@@ -285,6 +287,54 @@ function CPlayer(){
 		video.currentTime = video.duration * targetPercentage;
 		console.log('Video jumped to '+video.currentTime);
 	});
+
+	var formatTimeTip = function(percentage, duration){
+		var currentTime = percentage * duration;
+		var hour = parseInt(currentTime / 3600);
+		var min = parseInt((currentTime - hour*3600) / 60);
+		var sec = parseInt((currentTime - hour*3600 - min*60) % 60);
+		hour = (hour<=9)?('0'+hour):(hour);
+		min = (min<=9)?('0'+min):(min);
+		sec = (sec<=9)?('0'+sec):(sec);
+		return hour+':'+min+':'+sec;
+	}
+
+	/**
+	 * Floating time tip
+	 */
+	cProgressBar.addEventListener('mousemove', function(e){
+		if(!video.src){
+			return;
+		}
+		var targetPercentage = e.offsetX / this.offsetWidth;
+		if(!document.querySelector('.timeTip')){
+			var timeTip = document.createElement('div');
+			timeTip.className = 'timeTip';
+			var tipArrow = document.createElement('div');
+			tipArrow.className = 'tipArrow';
+			var tipContent = document.createElement('div');
+			tipContent.className = 'tipContent';
+			timeTip.appendChild(tipArrow);
+			timeTip.appendChild(tipContent);
+			document.body.appendChild(timeTip);
+		}else{
+			var timeTip = document.querySelector('.timeTip');
+			var tipContent = document.querySelector('.tipContent');
+			timeTip.className = 'timeTip';
+		}
+		tipContent.innerHTML = formatTimeTip(targetPercentage, video.duration);
+		timeTip.style.left = e.offsetX - timeTip.getClientRects()[0].width/2 + 'px';
+		timeTip.style.top = this.getClientRects()[0].top - timeTip.getClientRects()[0].height + 'px';
+	});
+
+	/**
+	 * Time tip auto hide
+	 */
+	cProgressBar.addEventListener('mouseout', function(){
+		if(!!document.querySelector('.timeTip')){
+			document.querySelector('.timeTip').className = 'timeTip fade';
+		}
+	})
 
 	/**
 	 * 'Pause video' action on clicking on canvas
@@ -319,6 +369,7 @@ function CPlayer(){
 		if(!!video.src && !video.paused){
 			video.currentTime = 0;
 			video.pause();
+			drawLogo();
 		}
 	});
 
