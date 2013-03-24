@@ -24,7 +24,7 @@ function CPlayer(){
 	 */
 	canvas.width = window.innerWidth;
 	canvas.height = window.innerHeight;
-	canvas.style.backgroundColor = '#000000';
+	canvas.id = 'CCanvas';
 	canvas.style.cursor = 'none';
 	document.body.appendChild(canvas);
 
@@ -89,6 +89,27 @@ function CPlayer(){
 	var cStop = document.createElement('button');
 	cStop.className = 'cBtn';
 	cStop.id = 'cStop';
+
+	/**
+	 * Construction start
+	 */
+	/** Volume icon and button **/
+	// var cVolume = document.createElement('button');
+	// cVolume.className = 'cBtn';
+	// cVolume.id = 'cVolumeHolder';
+	// var cVolumeIcon = document.createElement('div');
+	// cVolumeIcon.id = 'cVolume';
+	// var cVolumeCircle = document.createElement('div');
+	// cVolumeCircle.className = 'cVolumeCircle';
+	// cVolumeIcon.appendChild(cVolumeCircle);
+	// var cVolumeBtn = document.createElement('div');
+	// cVolumeBtn.className = 'cVolumeBtn';
+	// cVolume.appendChild(cVolumeIcon);
+	// cVolume.appendChild(cVolumeBtn);
+	/**
+	 * Construction end
+	 */
+
 	/** 'Add file' button **/
 	var cFile = document.createElement('button');
 	cFile.className = 'csmallBtn';
@@ -101,6 +122,7 @@ function CPlayer(){
 	controlBar.appendChild(cTimeTag);
 	controlBar.appendChild(cPlay);
 	controlBar.appendChild(cStop);
+	// controlBar.appendChild(cVolume);
 	controlBar.appendChild(cFile);
 	controlBar.appendChild(cHelp);
 	document.body.appendChild(controlBar);
@@ -226,6 +248,7 @@ function CPlayer(){
 			context.drawImage(video, _this.videoRect.cx, _this.videoRect.cy, _this.videoRect.vw, _this.videoRect.vh);
 		}, spf);
 		cPlay.className = 'cBtn pause';
+		trail.destroy();
 	});
 
 	/**
@@ -236,8 +259,8 @@ function CPlayer(){
 		var min = parseInt((currentTime - hour*3600) / 60);
 		var sec = parseInt((currentTime - hour*3600 - min*60) % 60);
 		var hourT = parseInt(duration / 3600);
-		var minT = parseInt((duration - hour*3600) / 60);
-		var secT = parseInt((duration - hour*3600 - min*60) % 60);
+		var minT = parseInt((duration - hourT*3600) / 60);
+		var secT = parseInt((duration - hourT*3600 - minT*60) % 60);
 		hour = (hour<=9)?('0'+hour):(hour);
 		min = (min<=9)?('0'+min):(min);
 		sec = (sec<=9)?('0'+sec):(sec);
@@ -445,6 +468,69 @@ function CPlayer(){
 	// 		console.log('Video resumed due to window focus event');
 	// 	}
 	// });
+
+	/**
+	 * Control via keyboard
+	 */
+	document.addEventListener('keydown', function(e){
+		switch(e.keyCode){
+			/** Space **/
+			case 32:
+				if(!!video.src){
+					if(video.paused){
+						video.play();
+					}else{
+						video.pause();
+					}
+				}
+			break;
+
+			/** Left **/
+			case 37:
+				if(!!video.src){
+					if(video.currentTime >= 10){
+						video.currentTime -= 10;
+					}else{
+						video.currentTime = 0;
+					}
+				}
+			break;
+
+			/** Up **/
+			case 38:
+				if((1 - video.volume) > 0.05){
+					video.volume += 0.05;
+				}else{
+					video.volume = 1;
+				}
+			break;
+
+			/** Right **/
+			case 39:
+				if(!!video.src){
+					if((video.duration - video.currentTime) >= 10){
+						video.currentTime += 10;
+					}else{
+						video.currentTime = video.duration;
+					}
+				}
+			break;
+
+			/** Down **/
+			case 40:
+				if(video.volume > 0.05){
+					video.volume -= 0.05;
+				}else{
+					video.volume = 0;
+				}
+			break;
+
+			/** Escape **/
+			case 27:
+				//
+			break;
+		}
+	});
 
 	console.log('CPlayer is now ready');
 
