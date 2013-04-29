@@ -248,7 +248,6 @@ function CPlayer(){
 			context.drawImage(video, _this.videoRect.cx, _this.videoRect.cy, _this.videoRect.vw, _this.videoRect.vh);
 		}, spf);
 		cPlay.className = 'cBtn pause';
-		trail.destroy();
 	});
 
 	/**
@@ -368,6 +367,7 @@ function CPlayer(){
 				video.pause();
 				console.log('Video paused at '+video.currentTime);
 			}else{
+				context.clearRect(0, 0, canvas.width, canvas.height);
 				video.play();
 				console.log('Video continued to play');
 			}
@@ -381,6 +381,7 @@ function CPlayer(){
 			if(!video.paused){
 				video.pause();
 			}else{
+				context.clearRect(0, 0, canvas.width, canvas.height);
 				video.play();
 			}
 		}else{
